@@ -1,0 +1,13 @@
+-- 1. Global % of deaths from covid casesSelect   SUM(new_cases) as total_cases, SUM(new_deaths) as total_deaths, (SUM(new_deaths)/SUM(New_Cases))*100 as DeathPercentageFrom   future-data-analyst-290597.Portfolio_Projects.covid_deathswhere   continent != 'null'order by   1,2;
+
+
+-- 2. Total death count by continentSelect   continent, SUM(new_deaths) as TotalDeathCountFrom   future-data-analyst-290597.Portfolio_Projects.covid_deathsWhere   continent != 'null'   Group by   continentorder by   TotalDeathCount desc;
+
+
+-- 3. % of population infectedSelect   Location, Population, MAX(total_cases) as HighestInfectionCount, Max((total_cases/population))*100 as PercentPopulationInfectedFrom   future-data-analyst-290597.Portfolio_Projects.covid_deathsGroup by   Location, Populationorder by   PercentPopulationInfected desc;
+
+
+-- 4. Joing 2 tables togetherselect  *from  future-data-analyst-290597.Portfolio_Projects.covid_deaths as covjoin   future-data-analyst-290597.Portfolio_Projects.covid_vaccinations as vac  on cov.location = vac.location  and cov.date = vac.date;
+
+
+--5. Rolling count of total vaccincations in continents by date-- Using CTE to calculate percent of people vaccincated in ContinentsWith   PopvsVac AS (select  cov.location, cov.date, cov.population, vac.new_vaccinations,   sum(vac.new_vaccinations) over (partition by cov.location Order by cov.location, cov.date) as RollingCount_Vaccinationsfrom  future-data-analyst-290597.Portfolio_Projects.covid_deaths as covjoin   future-data-analyst-290597.Portfolio_Projects.covid_vaccinations as vac  on cov.location = vac.location  and cov.date = vac.datewhere   cov.location = 'North America'  or cov.location = 'Africa'  or cov.location = 'Australia'  or cov.location = 'Asia'  or cov.location = 'South America'  or cov.location = 'United Kingdom'  )SELECT   location, date, population, new_vaccinations, ((RollingCount_Vaccinations/population)*100) as rolling_percentfrom   PopvsVac; 
